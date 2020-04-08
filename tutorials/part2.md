@@ -5,210 +5,124 @@ The `Pure.css` styles provide a simple way to create a grid, forms, buttons,
 and menus without having to load JavaScript. If you want a responsive menu
 system, see their website for a very small pure JavaScript file you can include.
 
-Start by editing `public/index.html`. Add a link to the `Pure.css`
-styles and change the title of the site:
+Start by running the front end:
 
 ```
-  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
-  <title>Photo Share</title>
+npm run serve
 ```
 
-At the bottom of the body, add the [font awesome](https://fontawesome.com/?from=io) library:
+## Cleanup
 
+The first thing I like to do is remove much of the starter template. Do the
+following:
+
+* In `router/index.js`, remove the second route, the one for the About page.
+
+* Remove `views/About.vue` and `components/HelloWorld.vue`.
+
+* Modify `views/Home.vue` so it has just an empty div in the `template` and no
+* references to the `HelloWorld` component in the `script` section.
+
+## Site Title
+
+Edit `public/index.html`. Add links for a Google Font, Pure CSS, and Font Awesome.
+Also change the title of the site:
+
+```html
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css">
+  <title>Photo Bomb</title>
 ```
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.1/js/all.js" integrity="sha256-FfgLgtUyCun3AtxuU4iXuVNSbOzW6p1ozrdO0PlV6qA=" crossorigin="anonymous"></script>
-</body>
-```
+
+*Note: any time you use a library, as above, check that you have the most
+*up-to-date version.*
+
+## Navigation
 
 Now let's create a menu.
 
 In `src/App.vue`, modify the `template` section so it looks like this:
 
-```
+```html
 <template>
-<div id="app">
-  <div class="pure-menu">
-    <span class="pure-menu-heading">Photo Bomb</span>
-    <ul class="pure-menu-list">
-      <li class="pure-menu-item">
-        <router-link to="/" class="pure-menu-link">Home</router-link>
-      </li>
-      <li class="pure-menu-item">
-        <router-link to="/mypage" class="pure-menu-link">My Page</router-link>
-      </li>
-    </ul>
-  </div>
-  <div class="content">
+  <div id="app">
+    <header id="header">
+      <h1>Photo Bomb</h1>
+      <nav>
+        <router-link to="/"><i class="fas fa-home"></i></router-link>
+        <router-link to="/dashboard"><i class="fas fa-user"></i></router-link>
+      </nav>
+    </header>
     <router-view />
   </div>
-</div>
 </template>
 ```
 
-The menu is contained in a `ul` element, with classes from `Pure.css`. We
-use `router-link` to create the links.
+We're going to do something a little different with this menu. Add
+the following `style` section:
 
-Now add the `style` section:
-
-```
+```html
 <style>
-/* https://color.adobe.com/Ventana-Azul-color-theme-2159606/?showPublished=true */
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-  font-size: 18px;
-  display: flex;
-  min-height: 100%;
-}
-
-.pure-menu {
-  /* To limit the menu width to the content of the menu: */
-  /* display: inline-block; */
-  /* Or set the width explicitly: */
-  text-align: left;
-  background: #000;
-}
-
-.pure-menu-heading {
-  color: #fff;
-  font-size: 1.2em;
-  padding: 20px 20px;
-  background-color: #F2385A;
-  margin-bottom: 10px;
-}
-
-.pure-menu-link {
-  color: #fff;
-  padding: 10px 20px;
-  font-weight: 800;
-}
-
-.pure-menu-link:hover {
-  background: #333;
-}
-
-.pure-menu-link.router-link-exact-active {
-  background: #fff;
-  color: #F2385A;
-}
-
-.content {
-  margin: 50px 100px;
-}
-
-html {
-  height: 100%;
-  box-sizing: border-box;
-}
-
+/* Color scheme: https://paletton.com/#uid=7040u0knHs+edG7jrvYscpiuCk2 */
+/* red: #e74c3c
+ * blue: #277E8E
+ */
 body {
-  height: 100%;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 300;
+  font-size: 13pt;
+  margin: 0px 200px;
 }
 
-*,
-*:before,
-*:after {
-  box-sizing: inherit;
-  /* https://css-tricks.com/box-sizing/ */
+#header {
+  /* Semi-circle */
+  margin: 0 1em 1em 0;
+  height: 100px;
+  width: 200px;
+  border-bottom-left-radius: 200px;
+  border-bottom-right-radius: 200px;
+  /* Fixed position */
+  position: fixed;
+  z-index: 10000;
+  left: 50%;
+  transform: translate(-50%, 0);
+  /* Color and alignment */
+  background: #e74c3c;
+  text-align: center;
+  box-shadow: 0 0 0 1em #FFF;
 }
 
-.error {
-  color: #F2385A;
+nav {
+  display: flex;
+  justify-content: center;
+}
+
+h1 {
+  color: #fff;
+  font-size: 18px;
+}
+
+h2 {
+  font-size: 12px;
+}
+
+#header .fas {
+  font-size: 25px;
+  color: #fff;
+  width: 50px;
 }
 
 .pure-button-primary {
-  background-color: #36B1BF;
-}
-
-/* Modals */
-.modal-mask {
-  position: fixed;
-  z-index: 9998;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, .5);
-  display: table;
-  transition: opacity .3s ease;
-}
-
-.modal-wrapper {
-  display: table-cell;
-  vertical-align: middle;
-}
-
-.modal-container {
-  width: 500px;
-  margin: 0px auto;
-  padding: 20px 30px;
-  background-color: #fff;
-  border-radius: 2px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
-  transition: all .3s ease;
-  font-family: Helvetica, Arial, sans-serif;
-}
-
-.modal-header h1 {
-  margin-bottom: 30px;
-  font-size: 1.5em;
-}
-
-.modal-body {
-  margin: 0;
-}
-
-.modal-body input {
-  margin-bottom: 20px;
-  height: 30px;
-}
-
-.modal-footer {
-  margin-top: 20px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.modal-default-button {
-  float: right;
-}
-
-/*
-  * The following styles are auto-applied to elements with
-  * transition="modal" when their visibility is toggled
-  * by Vue.js.
-  *
-  * You can easily play with the modal transition by editing
-  * these styles.
-  */
-.modal-enter {
-  opacity: 0;
-}
-
-.modal-leave-active {
-  opacity: 0;
-}
-
-.modal-enter .modal-container,
-.modal-leave-active .modal-container {
-  -webkit-transform: scale(1.1);
-  transform: scale(1.1);
+  background-color: #277E8E;
 }
 </style>
-```
-
-## Results
-
-Run the front end with:
-
-```
-npm run serve
 ```
 
 You should see the menu for this site:
 
 ![menu](/screenshots/menu.png)
 
-Go to [Part 3](/tutorials/part3.md).
+I've provided some comments in the CSS to show you how I made a half circle and placed it. The rest of the positioning is with flexbox and the menu icons are from Font Awesome.
+
+Kindly proceed to [Part 3](/tutorials/part3.md).

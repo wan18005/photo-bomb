@@ -1,51 +1,45 @@
-# Part 4: Authentication -- Back End
+# Part 4: Authentication
 
-Users need to register for an account and login. We'll create the back end
-portion of this here.
+Users need to register for an account and login.
 
-We will use the same code from our activity on user authentication, with some
-small modifications. Please see that activity for explanations of this code.
+We will use nearly the same code from our activity on [authenticating users](https://github.com/BYU-CS-260/authenticating-users). Please see that activity for explanations of this code.
 
-The primary change to this code is to extend our user model to include a real
-name. You'll notice a change to the schema and to the export statement.
+The only change to this code is to remove roles from user accounts since we won't use them here.
 
-The second change is to use middleware that validates a user's account,
-even if the token is valid. For example, we may have issued a token for a login,
-but then deleted the account before the token expired. You can find this in
-the `verify` static method that is defined on the user schema.
-
-## users.js
+## Back end
 
 Create a file called `server/users.js` and put the following there:
 
-```
-const mongoose = require('mongoose');
-const bcrypt = require("bcrypt");
+```javascript
 const express = require("express");
+const mongoose = require('mongoose');
+const argon2 = require("argon2");
+
 const router = express.Router();
-const auth = require("./auth.js");
 
-const SALT_WORK_FACTOR = 10;
+//
+// User schema and model
+//
 
+// This is the schema. Users have usernames and passwords. We solemnly promise to
+// salt and hash the password!
 const userSchema = new mongoose.Schema({
+  firstName: String,
+  lastName: String,
   username: String,
   password: String,
-  name: String,
-  tokens: [],
 });
 
+// This is a hook that will be called before a user record is saved,
+// allowing us to be sure to salt and hash the password first.
 userSchema.pre('save', async function(next) {
   // only hash the password if it has been modified (or is new)
   if (!this.isModified('password'))
     return next();
 
   try {
-    // generate a salt
-    const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
-
-    // hash the password along with our new salt
-    const hash = await bcrypt.hash(this.password, salt);
-
+    // generate a hash. argon2 does the salting and hashing for us
+    const hash = await argon2.hash(this.password);
     // override the plaintext password with the hashed one
     this.password = hash;
     next();
@@ -55,108 +49,143 @@ userSchema.pre('save', async function(next) {
   }
 });
 
+// This is a method that we can call on User objects to compare the hash of the
+// password the browser sends with the has of the user's true password stored in
+// the database.
 userSchema.methods.comparePassword = async function(password) {
   try {
-    const isMatch = await bcrypt.compare(password, this.password);
+    // note that we supply the hash stored in the database (first argument) and
+    // the plaintext password. argon2 will do the hashing and salting and
+    // comparison for us.
+    const isMatch = await argon2.verify(this.password, password);
     return isMatch;
   } catch (error) {
     return false;
   }
 };
 
+// This is a method that will be called automatically any time we convert a user
+// object to JSON. It deletes the password hash from the object. This ensures
+// that we never send password hashes over our API, to avoid giving away
+// anything to an attacker.
 userSchema.methods.toJSON = function() {
   var obj = this.toObject();
   delete obj.password;
-  delete obj.tokens;
   return obj;
 }
 
-userSchema.methods.addToken = function(token) {
-  this.tokens.push(token);
-}
-
-userSchema.methods.removeToken = function(token) {
-  this.tokens = this.tokens.filter(t => t != token);
-}
-
-userSchema.methods.removeOldTokens = function() {
-  this.tokens = auth.removeOldTokens(this.tokens);
-}
-
-// middleware to validate user account
-userSchema.statics.verify = async function(req, res, next) {
-  // look up user account
-  const user = await User.findOne({
-    _id: req.user_id
-  });
-  if (!user || !user.tokens.includes(req.token))
-    return res.clearCookie('token').status(403).send({
-      error: "Invalid user account."
-    });
-
-  req.user = user;
-
-  next();
-}
-
+// create a User model from the User schema
 const User = mongoose.model('User', userSchema);
+
+/* Middleware */
+
+// middleware function to check for logged-in users
+const validUser = async (req, res, next) => {
+  if (!req.session.userID)
+    return res.status(403).send({
+      message: "not logged in"
+    });
+  try {
+    const user = await User.findOne({
+      _id: req.session.userID
+    });
+    if (!user) {
+      return res.status(403).send({
+        message: "not logged in"
+      });
+    }
+    // set the user field in the request
+    req.user = user;
+  } catch (error) {
+    // Return an error if user does not exist.
+    return res.status(403).send({
+      message: "not logged in"
+    });
+  }
+
+  // if everything succeeds, move to the next middleware
+  next();
+};
+
+/* API Endpoints */
+
+/* All of these endpoints start with "/" here, but will be configured by the
+   module that imports this one to use a complete path, such as "/api/user" */
 
 // create a new user
 router.post('/', async (req, res) => {
-  if (!req.body.username || !req.body.password || !req.body.name)
+  // Make sure that the form coming from the browser includes all required fields,
+  // otherwise return an error. A 400 error means the request was
+  // malformed.
+  if (!req.body.firstName || !req.body.lastName || !req.body.username || !req.body.password)
     return res.status(400).send({
-      message: "Name, username, and password are required."
+      message: "first name, last name, username and password are required"
     });
 
   try {
 
-    //  check to see if username already exists
+    //  Check to see if username already exists and if not send a 403 error. A 403
+    // error means permission denied.
     const existingUser = await User.findOne({
       username: req.body.username
     });
     if (existingUser)
       return res.status(403).send({
-        message: "That username already exists."
+        message: "username already exists"
       });
 
-    // create new user
+    // create a new user and save it to the database
     const user = new User({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
       username: req.body.username,
-      password: req.body.password,
-      name: req.body.name
+      password: req.body.password
     });
     await user.save();
-    login(user, res);
+    // set user session info
+    req.session.userID = user._id;
+
+    // send back a 200 OK response, along with the user that was created
+    return res.send({
+      user: user
+    });
   } catch (error) {
     console.log(error);
     return res.sendStatus(500);
   }
 });
 
-// login
+// login a user
 router.post('/login', async (req, res) => {
+  // Make sure that the form coming from the browser includes a username and a
+  // password, otherwise return an error.
   if (!req.body.username || !req.body.password)
-    return res.status(400).send({
-      message: "Username and password are required."
-    });
+    return res.sendStatus(400);
 
   try {
     //  lookup user record
-    const existingUser = await User.findOne({
+    const user = await User.findOne({
       username: req.body.username
     });
-    if (!existingUser)
+    // Return an error if user does not exist.
+    if (!user)
       return res.status(403).send({
-        message: "The username or password is wrong."
+        message: "username or password is wrong"
       });
 
-    // check password
-    if (!await existingUser.comparePassword(req.body.password))
+    // Return the SAME error if the password is wrong. This ensure we don't
+    // leak any information about which users exist.
+    if (!await user.comparePassword(req.body.password))
       return res.status(403).send({
-        message: "The username or password is wrong."
+        message: "username or password is wrong"
       });
 
-    login(existingUser, res);
+    // set user session info
+    req.session.userID = user._id;
+
+    return res.send({
+      user: user
+    });
 
   } catch (error) {
     console.log(error);
@@ -164,124 +193,379 @@ router.post('/login', async (req, res) => {
   }
 });
 
-async function login(user, res) {
-  let token = auth.generateToken({
-    id: user._id
-  }, "24h");
-
-  user.removeOldTokens();
-  user.addToken(token);
-  await user.save();
-
-  return res
-    .cookie("token", token, {
-      expires: new Date(Date.now() + 86400 * 1000)
-    })
-    .status(200).send(user);
-}
-
-// Logout
-router.delete("/", auth.verifyToken, User.verify, async (req, res) => {
-  req.user.removeToken(req.token);
-  await req.user.save();
-  res.clearCookie('token');
-  res.sendStatus(200);
-});
-
-// Get current user if logged in.
-router.get('/', auth.verifyToken, User.verify, async (req, res) => {
-  return res.send(req.user);
-});
-
-module.exports = {
-  model: User,
-  routes: router,
-}
-```
-
-## auth.js
-
-Create a file called `server/auth.js` and put the following there:
-
-```
-const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
-
-// We define a random secret here to use for signing JWTs
-// You should NOT do this normally. You don't want to hard code
-// secret values into your code.
-let secret = "RANDOMSECRETCHANGETHIS";
-
-// Instead, you should define the value in a file called ".env".
-// Then call "source .env" to put this into the environment
-// This file should have in it:
-// export jwtSecret="RANDOMSECRETCHANGETHIS"
-// We would read this secret with the lne below:
-
-// let secret = process.env.jwtSecret;
-
-if (secret === undefined) {
-  console.log("You need to define a jwtSecret environment variable to continue.");
-  mongoose.connection.close();
-  process.exit();
-}
-
-// Generate a token
-const generateToken = (data, expires) => {
-  return jwt.sign(data, secret, {
-    expiresIn: expires
-  });
-};
-
-// Verify the token that a client gives us.
-// This is setup as middleware, so it can be passed as an additional argument to Express after
-// the URL in any route. This will restrict access to only those clients who possess a valid token.
-const verifyToken = (req, res, next) => {
-  const token = req.cookies["token"];
-  if (!token) return res.status(403).send({
-    message: "No token provided."
-  });
+// get logged in user
+router.get('/', validUser, async (req, res) => {
   try {
-    const decoded = jwt.verify(token, secret);
-    // save user id
-    req.user_id = decoded.id;
-    req.token = token;
-    next();
-
+    res.send({
+      user: req.user
+    });
   } catch (error) {
     console.log(error);
-    return res.status(403).send({
-      message: "Failed to authenticate token."
-    });
+    return res.sendStatus(500);
   }
-}
+});
 
-const removeOldTokens = (tokens) => {
-  return tokens.filter(token => {
-    try {
-      jwt.verify(token, secret);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  });
-}
+// logout
+router.delete("/", validUser, async (req, res) => {
+  try {
+    req.session = null;
+    res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+  }
+});
+
 
 module.exports = {
-  generateToken: generateToken,
-  verifyToken: verifyToken,
-  removeOldTokens: removeOldTokens,
+  routes: router,
+  model: User,
+  valid: validUser
 };
 ```
 
-## server.js
-
-Finally, modify `server/server.js` so it contains the following, before
+In addition, modify `server/server.js` so it contains the following, before
 `app.listen`.
 
-```
+```javascript
+// import the users module and setup its API path
 const users = require("./users.js");
 app.use("/api/users", users.routes);
 ```
 
-Go to [Part 5](/tutorials/part5.md).
+## Front end
+
+We'll create a front end that provides a way for users to register and login.
+
+We're going to need `axios`, so install that now:
+
+```
+cd front-end
+npm install axios
+```
+
+### User state
+
+To keep track of the currently logged in user, modify `main.js` so it has the following:
+
+```javascript
+let data = {
+  user: null
+}
+
+new Vue({
+  data,
+  router,
+  render: h => h(App)
+}).$mount('#app')
+```
+
+### Dashboard
+
+Start by creating a view in `views/Dashboard.vue`. We will eventually use this to show a user's photo stream when they are logged in. But when not logged in, it should show registration and login forms.
+
+Place the following in the `template` section of this new view:
+
+```html
+<template>
+<div class="dashboard">
+  <MyPhotos v-if="user" />
+  <Login v-else />
+</div>
+</template>
+```
+
+This will load a `MyPhotos` component to show the photo stream of the logged in user, or a `Login` component if they are not logged in.
+
+Place this in the `script` section of this component:
+
+```javascript
+<script>
+import MyPhotos from '@/components/MyPhotos.vue';
+import Login from '@/components/Login.vue';
+import axios from 'axios';
+export default {
+  name: 'dashboard',
+  components: {
+    MyPhotos,
+    Login,
+  },
+  async created() {
+    try {
+      let response = await axios.get('/api/users');
+      this.$root.$data.user = response.data.user;
+    } catch (error) {
+      this.$root.$data.user = null;
+    }
+  },
+  computed: {
+    user() {
+      return this.$root.$data.user;
+    }
+  }
+}
+</script>
+```
+
+This looks a lot like the home page from the [authenticating users](https://github.com/BYU-CS-260/authenticating-users) activity. We use a `created()` hook to get the user record if the browser has a cookie keeping a previous login active. The user's record is stored in global data. Then, the dashboard shows either the `MyPhotos` component (if logged in), or the `Login` component.
+
+Add this style as well:
+
+```html
+<style scoped>
+.dashboard {
+  padding-top: 10px;
+}
+</style>
+```
+
+### Registration and login
+
+Create a new component in `components/Login.vue` and add the following template:
+
+```javascript
+<template>
+<div class="hero">
+  <div class="heroBox">
+    <form class="pure-form">
+      <fieldset>
+        <legend>Register for an account</legend>
+        <input placeholder="first name" v-model="firstName">
+        <input placeholder="last name" v-model="lastName">
+      </fieldset>
+      <fieldset>
+        <input placeholder="username" v-model="username">
+        <input type="password" placeholder="password" v-model="password">
+      </fieldset>
+      <fieldset>
+        <button type="submit" class="pure-button pure-button-primary" @click.prevent="register">Register</button>
+      </fieldset>
+    </form>
+    <p v-if="error" class="error">{{error}}</p>
+    <form class="pure-form space-above">
+      <fieldset>
+        <legend>Login</legend>
+        <input placeholder="username" v-model="usernameLogin">
+        <input type="password" placeholder="password" v-model="passwordLogin">
+      </fieldset>
+      <fieldset>
+        <button type="submit" class="pure-button pure-button-primary" @click.prevent="login">Login</button>
+      </fieldset>
+    </form>
+    <p v-if="errorLogin" class="error">{{errorLogin}}</p>
+  </div>
+</div>
+</template>
+```
+
+This creates two forms, one for registration and another for login, along with associated error messages and event handlers.
+
+Here is the `script` section, a piece at a time:
+
+```javascript
+<script>
+import axios from 'axios';
+export default {
+  name: 'HomePage',
+  data() {
+    return {
+      firstName: '',
+      lastName: '',
+      username: '',
+      password: '',
+      usernameLogin: '',
+      passwordLogin: '',
+      error: '',
+      errorLogin: '',
+    }
+  },
+}
+</script>
+```
+
+This imports `axios` so we can use it for requests we send to the back end. It also initializes all the data properties this view will use.
+
+Next:
+
+```javascript
+  methods: {
+    async register() {
+      this.error = '';
+      this.errorLogin = '';
+      if (!this.firstName || !this.lastName || !this.username || !this.password)
+        return;
+      try {
+        let response = await axios.post('/api/users', {
+          firstName: this.firstName,
+          lastName: this.lastName,
+          username: this.username,
+          password: this.password,
+        });
+        this.$root.$data.user = response.data.user;
+      } catch (error) {
+        this.error = error.response.data.message;
+        this.$root.$data.user = null;
+      }
+    },
+  }
+```
+
+This defines a `register()` method, which collects the information from the registration form and sends it to the back end to create a new user with the `POST /api/users` endpoint. If this is successful, the returned user record is stored in global data. Any errors are shown in the template.
+
+Finally:
+
+```javascript
+    async login() {
+      this.error = '';
+      this.errorLogin = '';
+      if (!this.usernameLogin || !this.passwordLogin)
+        return;
+      try {
+        let response = await axios.post('/api/users/login', {
+          username: this.usernameLogin,
+          password: this.passwordLogin,
+        });
+        this.$root.$data.user = response.data.user;
+      } catch (error) {
+        this.errorLogin = "Error: " + error.response.data.message;
+        this.$root.$data.user = null;
+      }
+    },
+```
+
+This defines a `login()` method,  which collects the information from the login form and sends it to the back end to create a new user with the `POST /api/users/login` endpoint. If this is successful, the returned user record is stored in global data. Any errors are shown in the template.
+
+Following are the styles for this component:
+
+```html
+<style scoped>
+.space-above {
+  margin-top: 50px;
+}
+
+h1 {
+  font-size: 28px;
+  font-variant: capitalize;
+}
+
+.hero {
+  padding: 120px;
+  display: flex;
+  justify-content: center;
+}
+
+.heroBox {
+  text-align: center;
+}
+
+.hero form {
+  font-size: 14px;
+}
+
+.hero form legend {
+  font-size: 20px;
+}
+
+input {
+  margin-right: 10px;
+}
+
+.error {
+  margin-top: 10px;
+  display: inline;
+  padding: 5px 20px;
+  border-radius: 30px;
+  font-size: 10px;
+  background-color: #d9534f;
+  color: #fff;
+}
+</style>
+```
+
+### Logout
+
+We now need to add the ability to show the user they are logged in and allow them to logout.
+
+Create a new component in `components/MyPhotos.vue` and place the following template there:
+
+```html
+<template>
+<div class="main">
+  <div class="menu">
+    <p><a><i class="fas fa-image"></i></a></p>
+    <h2>{{user.firstName}} {{user.lastName}} <a @click="logout"><i class="fas fa-sign-out-alt"></i></a></h2>
+  </div>
+</div>
+</template>
+```
+
+This shows a button for uploading photos (to be completed later) and a button for logging out.
+
+Use the following for the `script` portion:
+
+```javascript
+<script>
+import axios from 'axios';
+export default {
+  name: 'MyPhotos',
+  data() {
+    return {}
+  },
+  computed: {
+    user() {
+      return this.$root.$data.user;
+    },
+  },
+  methods: {
+    async logout() {
+      try {
+        await axios.delete("/api/users");
+        this.$root.$data.user = null;
+      } catch (error) {
+        this.$root.$data.user = null;
+      }
+    },
+  }
+}
+</script>
+```
+
+A computed property provides access to the current user's record. The `logout` method uses the `DELETE /api/users` endpoint to logout the user.
+
+There is no `style` section for this component.
+
+### Routing
+
+We need to setup a route for this component so that the `/dashboard` URL will go to the `Dashboard` view. In `router/index.js`, add the import statement for this view:
+
+```javascript
+import Dashboard from '../views/Dashboard.vue'
+```
+
+Then add a configuration for the route:
+
+```javascript
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: Dashboard
+  }
+```
+
+## Testing
+
+If you click on the person icon in the menu, this should navigate to `/dashboard`. Since you don't have any accounts created yet, you should see the registration and login forms:
+
+![registration and login](/screenshots/registration-and-login.png)
+
+Open the browser console and select the network tab. When you register a new user, you should see the request to the API, with a `200 OK` status and a user record returned. In addition, the page should show that user now logged in:
+
+![registration](/screenshots/registration.png)
+
+Likewise, you can use the logout button and then login with this new user, and see the corresponding requests to the API for this:
+
+![login](/screenshots/login.png)
+
+If you do not see this functionality working, then you can debug by examining the network requests, finding the errors, and then hunting down any errors logged on the browser console or the terminal where the back end is running.
+
+Kindly proceed to [Part 5](/tutorials/part5.md).

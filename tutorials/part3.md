@@ -1,44 +1,75 @@
 # Part 3: Server Setup
 
-We need to setup a server for the back end of this project. In the top level of
-this project, install some packages we'll use:
+We need to setup a server for the back end of this project.
+
+In the top level of
+this project, create a directory for the back end:
 
 ```
-npm install express mongoose bcrypt jsonwebtoken cookie-parser multer
+mkdir back-end
+cd back-end
 ```
 
-Make a directory called `server`, and in that directory, create a file
-called `server.js`. Add the following content to `server/server.js`:
+Now install some packages we will use:
 
 ```
+npm install express mongoose argon2 body-parser cookie-parser cookie-session multer
+```
+
+Now create a file
+called `server.js` with the following content:
+
+```javascript
 const express = require('express');
 const bodyParser = require("body-parser");
+const mongoose = require('mongoose');
 
+// setup express
 const app = express();
+
+// setup body parser middleware to conver to JSON and handle URL encoded forms
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: false
 }));
 
-const mongoose = require('mongoose');
-
-// connect to the database
+// connect to the mongodb database
 mongoose.connect('mongodb://localhost:27017/photobomb', {
+  useUnifiedTopology: true,
   useNewUrlParser: true
 });
 
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
+const cookieSession = require('cookie-session');
+app.use(cookieSession({
+  name: 'session',
+  keys: [
+    'secretValue'
+  ],
+  cookie: {
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
 app.listen(3001, () => console.log('Server listening on port 3001!'));
 ```
 
-This sets up Express, the body parser middleware, and Mongo. See previous
+This sets up Express, the body parser middleware, Mongo, the cookie parser, and cookie sessions. See previous
 activities for explanations of these.
 
-You also need to create a file in the top level of this project called `vue.config.js`, containing the following:
+## Vue proxy server
+
+Go back to the front end:
 
 ```
+cd front-end
+```
+
+In this directory, create a file called `vue.config.js`, containing the following:
+
+```javascript
 module.exports = {
   devServer: {
     proxy: {
@@ -55,4 +86,4 @@ This lets the webpack development server that is started by `npm run serve` prox
 Note we are using a different port this time. This will ensure it does not
 conflict with your previous projects.
 
-Go to [Part 4](/tutorials/part4.md).
+Kindly proceed to [Part 4](/tutorials/part4.md).

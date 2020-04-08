@@ -1,11 +1,11 @@
-# Lab 5: Photo Bomb
+# Photo Bomb
 
 In this assignment, you will build an entire web application, using Vue CLI for
 the front end and Node, Express, and Mongo on the back end.
 
 ## Starting the Lab
 
-To start the lab, you must follow this [GitHub Classroom link](https://classroom.github.com/a/MJD33cj0). This will create a private repository for you using our classroom site. We will only grade repositories created and submitted this way.
+To start the lab, you must follow this [GitHub Classroom link](TBD). This will create a private repository for you using our classroom site. We will only grade repositories created and submitted this way.
 
 Once you "Accept the assignment" on GitHub Classroom, it will create a new repository for you and grant you access to it on GitHub. In order to start working on the lab, simply clone the repository to your laptop or other working environment.
 
@@ -16,18 +16,20 @@ uploading photos to a user's account, seeing all the photos in a user's account,
 and showing all photos on the home page. Once you are done, the home page should
 look like this:
 
-![home page](/screenshots/homepage.png)
+![home page](/screenshots/home.png)
 
 and a user's photo page should look like this:
 
-![photo page](/screenshots/mypage4.png)
+![photo page](/screenshots/uploaded-photos.png)
 
 ## Additional Functionality
 
 Once you complete these introductory tutorials, add the following functionality:
 
-- [Photo Page](/tutorials/part9.md)
-- [Comments](/tutorials/part10.md)
+- [Photo Page](/tutorials/part7.md)
+- [Comments](/tutorials/part8.md)
+
+Then [install your app on Digital Ocean](/tutorials/part9.md).
 
 ## Link to GitHub repository
 
@@ -44,6 +46,6 @@ rubric:
 
 | Item                                                                                         | Points |
 | -------------------------------------------------------------------------------------------- | ------ |
-| The material in the tutorial works. Add four photos of your own objects to demonstrate this. | 70     |
+| The material in the tutorial works. Add ten photos of your own from at least two different accounts to demonstrate this. | 70     |
 | Photo page meets requirements                                                                | 10     |
 | Comments meet requirements                                                                   | 20     |

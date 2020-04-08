@@ -1,116 +1,69 @@
-# Part 8: Home Page
+# Part 8: Comments
 
-The last step is to display everyone's photos on the home page.
+Modify the application so that users, if they are logged in, can comment on a
+photo on its photo page. The requirements for this part are:
 
-## Back End
+- The photo page should have a form for entering comments on the page.
 
-On the back end, we need an API endpoint that will return all the photos in
-the system. In `server/photos.js`, add the following endpoint:
+- Comments are owned by a user. A user must be logged in to make comments on a
+  photo. The form for adding comments is not displayed if the user is not logged
+  in.
 
-```
-// get all photos
-router.get("/all", async (req, res) => {
-  try {
-    let photos = await Photo.find().sort({
-      created: -1
-    }).populate('user');
-    return res.send(photos);
-  } catch (error) {
-    console.log(error);
-    return res.sendStatus(500);
-  }
+- Comments have a date.
+
+- When comments are displayed, they show the user's name who made the comment
+  and the date they made it. Format dates like we do for photos.
+
+- When comments are added, they are displayed immediately on the page. You do
+  not need to automatically display comments being added by a second user that
+  is using the app at the same time (e.g. from a different computer). But you
+  should be able to show the comments from the second user if you reload the
+  page.
+
+- The photo page use axios to add the comment and to
+  fetch comments.
+
+- The schema for comments will need to reference a User and a Photo.
+
+- The server should have a new REST API for adding and getting comments for a
+  photo. This API should use Mongoose to interact with the database. You will
+  need to populate the database query for comments to fill in the user, like we
+  did for photos.
+
+## Hints
+
+Recall that we setup a photo schema:
+
+```javascript
+const photoSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User'
+  },
+  path: String,
+  title: String,
+  description: String,
+  created: {
+    type: Date,
+    default: Date.now
+  },
 });
 ```
 
-We have to use a different path for this endpoint, since we already have a GET
-endpoint for getting the photos for the current user. We do _not_ validate the
-token or the user's account because anyone can see the photos.
+This references the `User` model. The comments schema should reference both a user and a photo.
 
-For this query, we add `populate('user')` to have Mongo fill in the user
-information for each photo. This way we can use `photo.user.name` to get the
-name of the person who took the photo.
+When we retrieved a list of photos from Mongo, we used something like this:
 
-## Vuex
-
-In `Vuex`, we need to add a new method to get all the photos from the back end:
-
-```
-    async getAllPhotos(context) {
-      try {
-        let response = await axios.get("/api/photos/all");
-        context.commit('setPhotos', response.data);
-        return "";
-      } catch (error) {
-        return "";
-      }
-    },
+```javascript
+let photos = await Photo.find().sort({
+      created: -1
+    }).populate('user');
 ```
 
-## Image Gallery
+This gets a list of all the photos in the database, sorts them, and then populates them with user records. This means that
+the database finds the user id that is listed in the photo document, looks up the user document for that user in the database,
+and then inserts it with the photo results. This way, if you have a photo `p1`, you can call `p1.user.name` and get the details
+of that user.
 
-We need to make some small changes to the Image Gallery to allow it to display
-the name of the person who uploaded the photo. Modify the line where we display
-the date as follows:
-
-```
-<p class="photoDate">
-  <span v-if="photo.user.name">{{photo.user.name}}, </span>
-  {{formatDate(photo.created)}}
-</p>
-```
-
-This will display both the user name and the date, but only if the user name is
-available. This way the `MyPhotos` page won't display the name for each photo.
-
-## Home Page
-
-Now we modify the home page to use the Image Gallery component. The `template`
-section needs just this:
-
-```
-<template>
-<div class="home">
-  <image-gallery :photos="photos" />
-</div>
-</template>
-```
-
-The `script` section needs to import this component, name it as a component,
-fetch the photos, and use a computed property to load the photos from Vuex.
-
-```
-<script>
-// @ is an alias to /src
-import ImageGallery from '@/components/ImageGallery.vue'
-
-export default {
-  name: 'home',
-  components: {
-    ImageGallery
-  },
-  computed: {
-    photos() {
-      return this.$store.state.photos;
-    }
-  },
-  async created() {
-    await this.$store.dispatch("getAllPhotos");
-  },
-}
-</script>
-```
-
-## Results
-
-You can now see the photos from all users on the home page.
-
-![home page](/screenshots/homepage.png)
-
-Be sure to use the Network tab on the Developer Tools of your browser to see the
-difference between what is returned for a user's photos versus all photos. You
-should see just a user ID in the first case and a complete user record in the
-second.
-
-![populated user record](/screenshots/populated.png)
-
-Go to [Part 9](/tutorials/part9.md).
+Likewise, when you retrieve a set of comments, you can populate the results with the users, so that you can know which user
+made which comment.
