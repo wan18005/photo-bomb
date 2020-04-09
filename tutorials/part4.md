@@ -8,7 +8,7 @@ The only change to this code is to remove roles from user accounts since we won'
 
 ## Back end
 
-Create a file called `server/users.js` and put the following there:
+Create a file in the `back-end` directory called `users.js` and put the following there:
 
 ```javascript
 const express = require("express");
