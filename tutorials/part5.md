@@ -17,7 +17,7 @@ const router = express.Router();
 // Configure multer so that it will upload to '/public/images'
 const multer = require('multer')
 const upload = multer({
-  dest: '../public/images/',
+  dest: '..front-end/public/images/',
   limits: {
     fileSize: 10000000
   }
