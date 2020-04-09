@@ -5,7 +5,7 @@ The last step is to display everyone's photos on the home page.
 ## Back End
 
 On the back end, we need an API endpoint that will return all the photos in
-the system. In `server/photos.js`, add the following endpoint:
+the system. In `back-end/photos.js`, add the following endpoint:
 
 ```javascript
 // get all photos
@@ -35,7 +35,7 @@ name of the person who took the photo.
 We need to modify `Home.vue` to show photos uploaded from all users. First, modify the `template`:
 
 ```html
-template>
+<template>
 <div class="home">
   <image-gallery :photos="photos" />
   <p v-if="error">{{error}}</p>
