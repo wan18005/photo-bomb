@@ -608,21 +608,6 @@ Finally, add a method to handle the event that occurs when the uploader finishes
     },
 ```
 
-Add some style for this component:
-
-```html
-<style scoped>
-.menu {
-  display: flex;
-  justify-content: space-between;
-}
-
-.menu h2 {
-  font-size: 14px;
-}
-</style>
-```
-
 ## Testing
 
 Users that are logged in can now upload and see their own photos.

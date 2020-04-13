@@ -532,7 +532,20 @@ export default {
 
 A computed property provides access to the current user's record. The `logout` method uses the `DELETE /api/users` endpoint to logout the user.
 
-There is no `style` section for this component.
+Add some style for this component:
+
+```html
+<style scoped>
+.menu {
+  display: flex;
+  justify-content: space-between;
+}
+
+.menu h2 {
+  font-size: 14px;
+}
+</style>
+```
 
 ### Routing
 
