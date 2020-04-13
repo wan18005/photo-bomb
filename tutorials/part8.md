@@ -56,8 +56,8 @@ When we retrieved a list of photos from Mongo, we used something like this:
 
 ```javascript
 let photos = await Photo.find().sort({
-      created: -1
-    }).populate('user');
+  created: -1
+}).populate('user');
 ```
 
 This gets a list of all the photos in the database, sorts them, and then populates them with user records. This means that
@@ -67,3 +67,27 @@ of that user.
 
 Likewise, when you retrieve a set of comments, you can populate the results with the users, so that you can know which user
 made which comment.
+
+A tricky part of the endpoints for creating and getting comments is that comments reference both the user who created the comment and the photo they are commenting on.
+
+* For the endpoint to create a comment, you can use the `validUser` middleware, and this will set req.user to the user record of the logged-in user. To know which photo they are commenting on, the endpoint can use `/:id` for the endpoint, and then req.parms.id will be set to that photo ID. It is good practice to find the photo first that has the corresponding ID. After all, it might not exist! So be sure it exists first. Then, you can create the comment with:
+
+```javascript
+let comment = new Comment({
+      comment: req.body.comment,
+      user: req.user,
+      photo: photo,
+    });
+```
+
+where `photo` is a variable set to the photo you found using `Photo.findOne()`.
+
+* For the endpoint to return a list of comments, you can use `/:id` for the endpoint again, and again make sure that photo exists in the database. If the photo exists, you can find all the comments with:
+
+```javascript
+let comments = await Comment.find({
+  photo: photo
+});
+```
+
+Remember that you can use `populate` to populate this with the corresponding user's record so the front end knows which user created each comment.
