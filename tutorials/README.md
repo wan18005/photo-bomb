@@ -16,4 +16,4 @@ Additional functionality:
 
 Installation:
 
-* [Part 9](/tutorials/digital-ocean.md): Digital Ocean
+* [Part 9](/tutorials/part9.md): Digital Ocean
