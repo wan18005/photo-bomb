@@ -70,7 +70,7 @@ made which comment.
 
 A tricky part of the endpoints for creating and getting comments is that comments reference both the user who created the comment and the photo they are commenting on.
 
-* For the endpoint to create a comment, you can use the `validUser` middleware, and this will set req.user to the user record of the logged-in user. To know which photo they are commenting on, the endpoint can use `/:id` for the endpoint, and then req.parms.id will be set to that photo ID. It is good practice to find the photo first that has the corresponding ID. After all, it might not exist! So be sure it exists first. Then, you can create the comment with:
+* For the endpoint to create a comment, you can use the `validUser` middleware, and this will set req.user to the user record of the logged-in user. To know which photo they are commenting on, the endpoint can use `/:id` for the endpoint, and then req.params.id will be set to that photo ID. It is good practice to find the photo first that has the corresponding ID. After all, it might not exist! So be sure it exists first. Then, you can create the comment with:
 
 ```javascript
 let comment = new Comment({
