@@ -20,8 +20,7 @@ following:
 
 * Remove `views/About.vue` and `components/HelloWorld.vue`.
 
-* Modify `views/Home.vue` so it has just an empty div in the `template` and no
-* references to the `HelloWorld` component in the `script` section.
+* Modify `views/Home.vue` so it has just an empty div in the `template` and no references to the `HelloWorld` component in the `script` section.
 
 ## Site Title
 
@@ -30,13 +29,12 @@ Also change the title of the site:
 
 ```html
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css">
+  <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.5/build/pure-min.css" integrity="sha384-LTIDeidl25h2dPxrB2Ekgc9c7sEC3CWGM6HeFmuDNUjX76Ert4Z4IY714dhZHPLd" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
   <title>Photo Bomb</title>
 ```
 
-*Note: any time you use a library, as above, check that you have the most
-*up-to-date version.*
+**Note:** any time you use a library, as above, check that you have the most *up-to-date version.* 
 
 ## Navigation
 

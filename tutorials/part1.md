@@ -20,9 +20,9 @@ Now run vue create:
 vue create front-end
 ```
 
-It will ask you some questions. Choose **Manually select features** and select
-`Router` with the space bar.
+It will ask you some questions. **Choose `Manually select features` and select
+`Vue 2.x` and `Router` with the space bar.**
 
-This creates a Vue CLI setup with Vue Router, webpack, and linting.
+This creates a Vue CLI setup with using Vue 2.x and Vue Router, webpack, and linting.
 
 Kindly proceed to [Part 2](/tutorials/part2.md).

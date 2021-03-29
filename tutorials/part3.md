@@ -83,7 +83,6 @@ module.exports = {
 
 This lets the webpack development server that is started by `npm run serve` proxy the requests for the API and send them to your node server.
 
-Note we are using a different port this time. This will ensure it does not
-conflict with your previous projects.
+Note we are using a different port this time (3001 instead of 3000). This will ensure it does not conflict with your previous projects.
 
 Kindly proceed to [Part 4](/tutorials/part4.md).
