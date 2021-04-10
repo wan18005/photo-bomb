@@ -17,7 +17,7 @@
  * blue: #277E8E
  */
 body {
-  font-family: 'Work Sans', sans-serif;
+  font-family: "Work Sans", sans-serif;
   font-weight: 300;
   font-size: 13pt;
   margin: 0px 200px;
@@ -38,7 +38,7 @@ body {
   /* Color and alignment */
   background: #e74c3c;
   text-align: center;
-  box-shadow: 0 0 0 1em #FFF;
+  box-shadow: 0 0 0 1em #fff;
 }
 
 nav {
@@ -62,6 +62,6 @@ h2 {
 }
 
 .pure-button-primary {
-  background-color: #277E8E;
+  background-color: #277e8e;
 }
 </style>
