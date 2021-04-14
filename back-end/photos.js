@@ -8,7 +8,7 @@ const validUser = users.valid;
 // Configure multer so that it will upload to '/public/images'
 const multer = require('multer')
 const upload = multer({
-  dest: '/var/www/lab5.christianjuniuscs260.me/images/',
+  dest: '/var/www/photobomb.rubyshark.com/images/',
   limits: {
     fileSize: 10000000
   }
@@ -105,11 +105,11 @@ router.get("/:id", async (req, res) => {
       let photo = await Photo.findOne({
           _id: req.params.id
       }).populate('user');
-    
+
       let comments = await Comment.find({
             photo: photo
       }).populate('user');
-    
+
     return res.send({data: photo, comments: comments});
   } catch (error) {
     console.log(error);
