@@ -1,51 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/purecss@1.0.1/build/pure-min.css"
-      integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="https://use.fontawesome.com/releases/v5.13.0/css/all.css"
-    />
-    <style>
-      .hp-pc-lift-nav {
-        position: fixed;
-        width: 50px;
-        bottom: 15px;
-        font-size: 50px;
-        left: 0;
-        z-index: 100;
-      }
-    </style>
-    <title>Photo Bomb</title>
-  </head>
-  <body>
-    <noscript>
-      <strong
-        >We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work
-        properly without JavaScript enabled. Please enable it to
-        continue.</strong
-      >
-    </noscript>
-    <div id="app"></div>
-    <!-- built files will be auto injected -->
 
-    <div class="hp-pc-lift-nav">
-      <a href="https://github.com/BYU-CS-260-Winter-2021/lab-5-photo-bomb-wan18005">
-        <i class="fab fa-github-square"></i>
-      </a>
-    </div>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <link rel="icon" href="<%= BASE_URL %>favicon.ico" />
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css"
+    integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css" />
+  <style>
+    .hp-pc-left-nav {
+      position: fixed;
+      width: 50px;
+      bottom: 80px;
+      font-size: 50px;
+      left: 0;
+      z-index: 100;
+    }
+
+    .hp-pc-right-nav {
+      position: fixed;
+      width: 50px;
+      bottom: 80px;
+      font-size: 50px;
+      right: 0;
+      z-index: 100;
+    }
+  </style>
+  <title>Movie List</title>
+</head>
+
+<body>
+  <noscript>
+    <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work
+        properly without JavaScript enabled. Please enable it to
+        continue.</strong>
+  </noscript>
+  <div id="app"></div>
+  <!-- built files will be auto injected -->
+
+  <div class="hp-pc-left-nav">
+    <a href="https://github.com/BYU-CS-260-Winter-2021/lab-5-photo-bomb-wan18005">
+      <i class="fab fa-github-square"></i>
+    </a>
+  </div>
+
+  <div class="hp-pc-right-nav">
+    <a href=""><i class="fas fa-question-circle"></i></router-link>
+    </a>
+  </div>
+</body>
+
 </html>
