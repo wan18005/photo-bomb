@@ -44,7 +44,9 @@
     <img :src="findItem.path" />
   </div>
 </div>
-
+<div class="github">
+  <a href="https://github.com/BYU-CS-260-Winter-2020/lab-4-museum-of-ordinary-objects-calebleehill1993">Github Classroom</a>
+</div>
 </div>
 </template>
 

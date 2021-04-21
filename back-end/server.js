@@ -28,6 +28,19 @@ const upload = multer({
   }
 });
 
+
+// Upload a photo. Uses the multer middleware for the upload and then returns
+// the path where the photo is stored in the file system.
+app.post('/api/photos', upload.single('photo'), async (req, res) => {
+  // Just a safety check
+  if (!req.file) {
+    return res.sendStatus(400);
+  }
+  res.send({
+    path: "/images/" + req.file.filename
+  });
+});
+
 // Create a new item in the museum: takes a title and a path to an image.
 app.post('/api/items', async (req, res) => {
   const item = new Item({
@@ -44,20 +57,24 @@ app.post('/api/items', async (req, res) => {
   }
 });
 
+// Configure multer so that it will upload to '../front-end/public/images'
+const multer = require('multer')
+const upload = multer({
+  dest: '../front-end/public/images/',
+  limits: {
+    fileSize: 10000000
+  }
+});
 
-
-
-
-// Brand part//
-// Create a scheme for brands in the dealership: a name, a description, and a path to an image.
-const brandSchema = new mongoose.Schema({
-  name: String,
-  text: String,
+// Create a scheme for items in the museum: a title and a path to an image.
+const itemSchema = new mongoose.Schema({
+  title: String,
+  description: String,
   path: String,
 });
 
-// Create a model for brands in the dealership.
-const Brand = mongoose.model('Brand', brandSchema);
+// Create a model for items in the museum.
+const Item = mongoose.model('Item', itemSchema);
 
 // Upload a photo. Uses the multer middleware for the upload and then returns
 // the path where the photo is stored in the file system.
@@ -71,89 +88,20 @@ app.post('/api/photos', upload.single('photo'), async (req, res) => {
   });
 });
 
-
-
-// Model part//
-const vehicleSchema = new mongoose.Schema({
-  /*brand: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'Brand'
-  },*/
-  carName: String,
-  miles: String,
-  price: String,
-  title: String,
-  path: String,
-  make: String,
-})
-
-// Model for vehicles
-const Vehicle = mongoose.model('Vehicle', vehicleSchema);
-
-app.post('/api/vehicles', async (req, res) => {
-  const vehicle = new Vehicle({
-    carName: req.body.carName,
-    miles: req.body.miles,
-    price: req.body.price,
-    title: req.body.title,
-    path: req.body.path,
-    make: req.body.make,
-  });
+// Get a list of all of the items in the museum.
+app.get('/api/items', async (req, res) => {
   try {
-    await vehicle.save();
-    res.send(vehicle);
+    let items = await Item.find();
+    res.send(items);
   } catch (error) {
     console.log(error);
     res.sendStatus(500);
   }
 });
 
-app.get('/api/vehicles', async (req, res) => {
+app.delete('/api/items/:id', async (req, res) => {
   try {
-    let vehicles = await Vehicle.find();
-    res.send(vehicles);
-  } catch (error) {
-    console.log(error);
-    res.sendStatus(500);
-  }
-});
-
-app.put('/api/brands/:id', async (req, res) => {
-  try {
-    const brand = await Brand.findOne({
-      _id: req.params.id
-    });
-    brand.name = req.body.name;
-    brand.text = req.body.text;    //description for Edit 
-    await brand.save();
-    res.send(brand);
-  } catch (error) {
-    console.log(error);
-    res.sendStatus(500);
-  }
-});
-
-app.put('/api/vehicles/:id', async (req, res) => {
-  try {
-    const vehicle = await Vehicle.findOne({
-      _id: req.params.id
-    });
-    vehicle.carName = req.body.carName,
-      vehicle.miles = req.body.miles,
-      vehicle.price = req.body.price,
-      vehicle.title = req.body.title,
-      vehicle.make = req.body.make,
-      await vehicle.save();
-    res.send(vehicle);
-  } catch (error) {
-    console.log(error);
-    res.sendStatus(500);
-  }
-});
-
-app.delete('/api/vehicles/:id', async (req, res) => {
-  try {
-    await Vehicle.deleteOne({
+    await Item.deleteOne({
       _id: req.params.id
     });
     res.sendStatus(200);
@@ -163,9 +111,20 @@ app.delete('/api/vehicles/:id', async (req, res) => {
   }
 });
 
-
-
-
+app.put('/api/items/:id', async (req, res) => {
+  try {
+    let item = await Item.findOne({
+      _id: req.params.id
+    });
+    item.title = req.body.title;
+    item.description = req.body.description;
+    await item.save();
+    res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+});
 
 
 
