@@ -1,5 +1,4 @@
 <template>
-<<<<<<< HEAD
 <div class="home">
   <section class="image-gallery">
     <div class="image" v-for="item in items" :key="item.id">
@@ -8,16 +7,10 @@
       <p>{{item.description}}</p>
     </div>
   </section>
-
-</div>
-=======
-  <div class="home">
-    <br /><br />
-    <br />
-    <image-gallery :photos="photos" />
-    <p v-if="error">{{ error }}</p>
+  <div class="github">
+    <a href="https://github.com/BYU-CS-260-Winter-2021/lab-4-museum-of-ordinary-objects-wan18005">Github</a>
   </div>
->>>>>>> parent of b7b324d (stable version)
+</div>
 </template>
 
 <script>
@@ -27,7 +20,6 @@ export default {
   name: 'Home',
   data() {
     return {
-<<<<<<< HEAD
      items: [],
     }
   },
@@ -48,26 +40,56 @@ export default {
 }
 </script>
 
-
-=======
-      photos: [],
-      error: "",
-    };
-  },
-  created() {
-    this.getPhotos();
-  },
-  methods: {
-    async getPhotos() {
-      try {
-        let response = await axios.get("/api/photos/all");
-        this.photos = response.data;
-      } catch (error) {
-        this.error = error.response.data.message;
-      }
-    },
-  },
-};
-</script>
-
->>>>>>> parent of b7b324d (stable version)
+<style scoped>
+.iframe-container{
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  height: 0;
+}
+.iframe-container iframe{
+  position: absolute;
+  top:0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.image h2 {
+  font-style: italic;
+}
+/* Masonry */
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+.image-gallery {
+  column-gap: 1.5em;
+}
+.image {
+  margin: 0 0 1.5em;
+  display: inline-block;
+  width: 100%;
+}
+.image img {
+  width: 100%;
+}
+/* Masonry on large screens */
+@media only screen and (min-width: 1024px) {
+  .image-gallery {
+    column-count: 4;
+  }
+}
+/* Masonry on medium-sized screens */
+@media only screen and (max-width: 1023px) and (min-width: 768px) {
+  .image-gallery {
+    column-count: 3;
+  }
+}
+/* Masonry on small screens */
+@media only screen and (max-width: 767px) and (min-width: 540px) {
+  .image-gallery {
+    column-count: 2;
+  }
+}
+</style>
