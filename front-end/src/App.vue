@@ -3,18 +3,29 @@
   <div class="header">
     <router-link to="/">
       <div class="logo">
-        <img src="/ordinary.png">
+        <img src="/logo.png">
       </div>
     </router-link>
     <div class="title">
-      <h1>Museum of Ordinary Objects</h1>
+      <h1>Kim's Delalership</h1>
     </div>
   </div>
   <div class="content">
     <router-view />
   </div>
   <div class="footer">
-    <router-link to="/admin">Admin</router-link>
+    <div class="home_link">
+      <router-link to="/">Home</router-link>
+    </div>
+    <div class="admin_link">
+      <router-link to="/dashboard">Dashbord</router-link>
+    </div>
+    <div class="admin_link">
+      <router-link to="/admin">Admin</router-link>
+    </div>
+    <div id="footer">
+      <a href="https://github.com/kimycyc94/Dealership" target= '_blank'>Git Repo</a>
+    </div>
   </div>
 </div>
 </template>
@@ -30,14 +41,18 @@ body {
   background: #fff;
   padding: 0px;
   margin: 0px;
+  display: flex;
+  flex-flow: column wrap;
 }
 
 /* Header */
 .header {
   display: flex;
-  padding: 10px 100px 0px 100px;
-  background-color: #5BDEFF;
-  color: #1C454F;
+  flex-flow: column wrap;
+  align-items: center;
+  padding: 20px 20px 0px 20px;
+  background-color: #9a9d9e;
+  color: #f1f1f1;
 }
 
 .title {
@@ -50,23 +65,42 @@ body {
 
 .content {
   padding: 20px 100px;
-  min-height: 500px;
+  min-height: 580px;
 }
 
 /* Footer */
 .footer {
   height: 50px;
-  padding: 20px 100px 0px 100px;
-  background: #e3e3e3;
-  font-size: 12px;
+  background: #9a9d9e;
+  font-size: 1.5em;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: space-evenly;
 }
 
 .footer a {
-  color: #000;
+  color: #f1f1f1;
+  text-decoration: none;
+}
+
+.home_link:hover {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.admin_link:hover {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+#footer:hover {
+  font-weight: bold;
+  text-decoration: underline;
 }
 
 h1 {
-  font-size: 20px;
+  font-size: 2px;
 }
 
 h2 {
