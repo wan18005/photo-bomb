@@ -2,6 +2,7 @@
   <div>
     <section class="pure-u-1-1">
       <div class="image">
+        <!-- <img :src="photo.path" /> -->
         <img :src="photo.data.path" />
         <div class="flex">
           <p class="userName pure-u-1-2">
@@ -13,10 +14,11 @@
         </div>
       </div>
       <small> TITLE: </small>
+      <br />
       <h1 class="photoTitle">{{ photo.data.title }}</h1>
       <div class="description">
         <small> DESCRIPTION: </small>
-        <br />
+        <br /><br />
         {{ photo.data.description }}
       </div>
       <hr />
@@ -38,7 +40,6 @@
           {{ com.comment }}
         </div>
       </div>
-      <!-- comment box  -->
       <div class="description" v-if="user">
         <small> COMMENT BOX: </small>
         <div class="form">

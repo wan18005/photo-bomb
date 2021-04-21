@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
 <div class="home">
   <section class="image-gallery">
     <div class="image" v-for="item in items" :key="item.id">
@@ -9,6 +10,14 @@
   </section>
 
 </div>
+=======
+  <div class="home">
+    <br /><br />
+    <br />
+    <image-gallery :photos="photos" />
+    <p v-if="error">{{ error }}</p>
+  </div>
+>>>>>>> parent of b7b324d (stable version)
 </template>
 
 <script>
@@ -18,6 +27,7 @@ export default {
   name: 'Home',
   data() {
     return {
+<<<<<<< HEAD
      items: [],
     }
   },
@@ -39,3 +49,25 @@ export default {
 </script>
 
 
+=======
+      photos: [],
+      error: "",
+    };
+  },
+  created() {
+    this.getPhotos();
+  },
+  methods: {
+    async getPhotos() {
+      try {
+        let response = await axios.get("/api/photos/all");
+        this.photos = response.data;
+      } catch (error) {
+        this.error = error.response.data.message;
+      }
+    },
+  },
+};
+</script>
+
+>>>>>>> parent of b7b324d (stable version)

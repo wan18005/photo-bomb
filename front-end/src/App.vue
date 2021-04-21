@@ -27,9 +27,6 @@
     <div class="home_link">
       <router-link to="/about">About</router-link>
     </div>
-    <div class="home_link">
-      <router-link to="/admin">Admin</router-link>
-    </div>
     
     
     

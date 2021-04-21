@@ -1,8 +1,13 @@
 <template>
   <div class="main">
     <div class="menu">
-      <p><a @click="toggleUpload"><i class="fas fa-image"></i></a></p>
-      <h2>{{ user.firstName }} {{ user.lastName }}<a @click="logout"><i class="fas fa-sign-out-alt"></i></a></h2>
+      <p>
+        <a @click="toggleUpload"><i class="fas fa-image"></i></a>
+      </p>
+      <h2>
+        {{ user.firstName }} {{ user.lastName }}
+        <a @click="logout"><i class="fas fa-sign-out-alt"></i></a>
+      </h2>
       <uploader :show="show" @close="close" @uploadFinished="uploadFinished" />
     </div>
     <image-gallery :photos="photos" />

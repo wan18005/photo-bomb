@@ -19,6 +19,7 @@ mongoose.connect('mongodb://localhost:27017/final', {
   useNewUrlParser: true
 });
 
+<<<<<<< HEAD
 // Configure multer so that it will upload to '../front-end/public/images'
 const multer = require('multer')
 const upload = multer({
@@ -154,6 +155,8 @@ app.put('/api/items/:id', async (req, res) => {
 
 
 
+=======
+>>>>>>> parent of b7b324d (stable version)
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
@@ -167,19 +170,6 @@ app.use(cookieSession({
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import the users module and setup its API path
 app.use("/api/users", users.routes);

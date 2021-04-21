@@ -2,6 +2,7 @@
   <div>
     <section class="image-gallery">
       <div class="image zoom" v-for="photo in photos" v-bind:key="photo._id">
+        <!-- <img :src="photo.path" /> -->
         <router-link :to="{ name: 'photo', params: { id: photo._id } }">
           <img :src="photo.path" />
         </router-link>

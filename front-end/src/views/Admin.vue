@@ -1,5 +1,5 @@
-
 <template>
+<<<<<<< HEAD
 <div class="admin">
 <h1>The Admin Page!</h1>
 <div class="heading">
@@ -191,3 +191,7 @@ background-color: #5BDEFF;
 color: #fff;
 }
 </style>
+=======
+    <p>this is admin</p>
+</template>
+>>>>>>> parent of b7b324d (stable version)
